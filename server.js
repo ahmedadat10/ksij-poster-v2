@@ -20,66 +20,57 @@ const anthropic = new Anthropic({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static('public'));
 
-// Parse and generate filled template
+// Generate filled poster
 app.post('/api/generate', async (req, res) => {
     try {
-        const { programmeText, hadith } = req.body;
+        const { programmeText } = req.body;
         
-        console.log('Generating poster...');
+        console.log('Generating poster from programme text...');
         
-        // Parse with AI
+        // Read the template
+        const templatePath = path.join(__dirname, 'public', 'template.html');
+        const template = readFileSync(templatePath, 'utf-8');
+        
+        // Ask Claude to fill the template
         const message = await anthropic.messages.create({
             model: 'claude-sonnet-4-20250514',
-            max_tokens: 4000,
+            max_tokens: 16000,
             messages: [{
                 role: 'user',
-                content: `Parse KSIJ programme. Return ONLY JSON:
+                content: `I have an HTML template for a KSIJ weekly programme poster and programme text to fill it with.
 
+Your task: Take the template HTML and replace the example data with the ACTUAL programme data.
+
+TEMPLATE HTML:
+${template}
+
+PROGRAMME TEXT TO USE:
 ${programmeText}
 
-Format:
-{
-  "dateRange": "22ND DEC - 28TH DEC 2025",
-  "islamicDateRange": "1ST - 7TH RAJAB 1447",
-  "days": [
-    {
-      "dayName": "Monday 22nd Dec.",
-      "islamicDate": "1ST RAJAB 1447",
-      "prayers": {"fajr": "05:39 A.M.", "zohrain": "12:49 P.M.", "maghrebain": "07:06 P.M."},
-      "programmes": [{"title": "PROGRAMME", "type": "wiladat", "items": ["8:15 PM Item"]}],
-      "notes": ["Note"]
-    }
-  ]
-}`
+Instructions:
+1. Replace "23RD MARCH - 29TH MARCH 2026" with the actual date range from the programme
+2. Replace "3RD - 9TH SHAWWAL 1447" with the actual Islamic date range
+3. For EACH day, update the day name, Islamic date, prayer times, and programmes
+4. Keep ALL the HTML structure, styles, and classes EXACTLY the same
+5. Only change the TEXT content - dates, times, programme titles, etc.
+
+Return the COMPLETE filled HTML with all actual data from the programme text.`
             }]
         });
 
-        const rawText = message.content.map(item => item.text || "").join("\n");
-        let cleanText = rawText.replace(/```json|```/g, "").trim();
-        const firstBrace = cleanText.indexOf('{');
-        const lastBrace = cleanText.lastIndexOf('}');
-        if (firstBrace !== -1 && lastBrace !== -1) {
-            cleanText = cleanText.substring(firstBrace, lastBrace + 1);
-        }
-
-        const data = JSON.parse(cleanText);
+        let html = message.content.map(item => item.text || "").join("\n");
+        html = html.replace(/```html|```/g, "").trim();
         
-        // Read template
-        const templatePath = path.join(__dirname, 'public', 'template.html');
-        let html = readFileSync(templatePath, 'utf-8');
-        
-        // Simple replacements
-        html = html.replace(/22ND DEC - 28TH DEC 2025/g, data.dateRange);
-        html = html.replace(/1ST - 7TH RAJAB 1447/g, data.islamicDateRange);
-        
-        // Save filled template
+        // Save the filled template
         const outputPath = path.join(__dirname, 'public', 'poster-ready.html');
         writeFileSync(outputPath, html);
+        
+        console.log('Poster generated successfully!');
         
         res.json({ 
             success: true, 
             url: '/poster-ready.html',
-            message: 'Poster ready! Opening in new tab...'
+            message: 'Poster ready!'
         });
         
     } catch (error) {
@@ -90,4 +81,5 @@ Format:
 
 app.listen(PORT, () => {
     console.log(`🚀 KSIJ Poster Generator on port ${PORT}`);
+    console.log(`API Key configured: ${!!process.env.ANTHROPIC_API_KEY}`);
 });
