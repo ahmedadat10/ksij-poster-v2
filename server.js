@@ -25,6 +25,9 @@ app.use(express.static('public'));
 app.post('/api/parse', async (req, res) => {
     try {
         const { programmeText } = req.body;
+        
+        console.log('Parsing request received');
+        console.log('API Key exists:', !!process.env.ANTHROPIC_API_KEY);
 
         const message = await anthropic.messages.create({
             model: 'claude-sonnet-4-20250514',
@@ -72,7 +75,12 @@ Return ONLY JSON:
         res.json({ success: true, data: parsedData });
     } catch (error) {
         console.error('Parse error:', error);
-        res.status(500).json({ success: false, error: error.message });
+        console.error('Error stack:', error.stack);
+        res.status(500).json({ 
+            success: false, 
+            error: error.message,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 });
 
@@ -81,28 +89,46 @@ app.post('/api/generate-poster', async (req, res) => {
     try {
         const { data, hadith } = req.body;
         
+        console.log('Generating poster...');
+        
         // Generate complete HTML
         const html = generatePosterHTML(data, hadith);
+        console.log('HTML generated, length:', html.length);
         
         // Convert to PNG with Puppeteer
+        console.log('Launching browser...');
         const browser = await puppeteer.launch({
             headless: 'new',
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
+            executablePath: '/usr/bin/chromium',
+            args: [
+                '--no-sandbox', 
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu'
+            ]
         });
         
+        console.log('Browser launched, creating page...');
         const page = await browser.newPage();
         await page.setContent(html, { waitUntil: 'networkidle0' });
         await page.setViewport({ width: 1080, height: 1, deviceScaleFactor: 2 });
         
+        console.log('Taking screenshot...');
         const screenshot = await page.screenshot({ type: 'png', fullPage: true });
         await browser.close();
         
+        console.log('Screenshot complete, sending response');
         res.set('Content-Type', 'image/png');
         res.send(screenshot);
         
     } catch (error) {
         console.error('Generation error:', error);
-        res.status(500).json({ success: false, error: error.message });
+        console.error('Error stack:', error.stack);
+        res.status(500).json({ 
+            success: false, 
+            error: error.message,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 });
 
