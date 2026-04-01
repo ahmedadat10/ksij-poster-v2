@@ -1,14 +1,5 @@
 [phases.setup]
-aptPkgs = [
-  "fonts-liberation", 
-  "fonts-dejavu-core", 
-  "fontconfig",
-  "chromium",
-  "chromium-sandbox"
-]
-
-[phases.install]
-cmds = ["npm install"]
+aptPkgs = ["fonts-liberation", "fonts-dejavu-core", "fontconfig"]
 
 [start]
 cmd = "npm start"
