@@ -1,377 +1,234 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KSIJ Weekly Programme Generator</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .panel {
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-
-        h1 {
-            color: #2d3748;
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
-
-        .input-section {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #4a5568;
-            font-weight: 600;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            resize: vertical;
-            transition: border-color 0.3s;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            width: 100%;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        button:disabled {
-            background: #cbd5e0;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .status {
-            margin-top: 15px;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            display: none;
-        }
-
-        .status.loading {
-            background: #ebf8ff;
-            color: #2c5282;
-            display: block;
-        }
-
-        .status.success {
-            background: #f0fff4;
-            color: #22543d;
-            display: block;
-        }
-
-        .status.error {
-            background: #fff5f5;
-            color: #742a2a;
-            display: block;
-        }
-
-        #posterPreview {
-            width: 100%;
-            max-width: 100%;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: none;
-        }
-
-        #posterPreview.visible {
-            display: block;
-        }
-
-        .preview-container {
-            position: sticky;
-            top: 20px;
-        }
-
-        .download-btn {
-            margin-top: 15px;
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-        }
-
-        .download-btn:disabled {
-            background: #cbd5e0;
-        }
-
-        @media (max-width: 1024px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-            
-            .preview-container {
-                position: static;
-            }
-        }
-
-        .loader {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            border: 2px solid #ffffff;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 0.8s linear infinite;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .example-link {
-            color: #667eea;
-            text-decoration: none;
-            font-size: 13px;
-            display: inline-block;
-            margin-top: 5px;
-        }
-
-        .example-link:hover {
-            text-decoration: underline;
-        }
-
-        .placeholder {
-            text-align: center;
-            padding: 60px 20px;
-            color: #a0aec0;
-        }
-
-        .placeholder-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KSIJ Poster Generator</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  max-width: 600px;
+  width: 100%;
+  padding: 40px;
+}
+h1 {
+  font-size: 28px;
+  color: #2d3748;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.subtitle {
+  text-align: center;
+  color: #718096;
+  margin-bottom: 30px;
+  font-size: 14px;
+}
+label {
+  display: block;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+textarea {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  resize: vertical;
+  margin-bottom: 20px;
+  transition: border-color 0.2s;
+}
+textarea:focus {
+  outline: none;
+  border-color: #667eea;
+}
+button {
+  width: 100%;
+  background: linear-gradient(135deg, #2a9d4e 0%, #1e7a3c 100%);
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(42, 157, 78, 0.4);
+}
+button:disabled {
+  background: #cbd5e0;
+  cursor: not-allowed;
+  transform: none;
+}
+.loader {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid white;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 0.8s linear infinite;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.status {
+  margin-top: 20px;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  display: none;
+  text-align: center;
+}
+.status.success {
+  background: #c6f6d5;
+  color: #22543d;
+  border: 2px solid #48bb78;
+  display: block;
+}
+.status.error {
+  background: #fed7d7;
+  color: #742a2a;
+  border: 2px solid #f56565;
+  display: block;
+}
+.instructions {
+  background: #edf2f7;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 30px;
+  border-left: 4px solid #667eea;
+}
+.instructions h3 {
+  font-size: 16px;
+  color: #2d3748;
+  margin-bottom: 12px;
+}
+.instructions ol {
+  margin-left: 20px;
+  color: #4a5568;
+  font-size: 14px;
+  line-height: 1.8;
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="panel">
-            <h1>📅 KSIJ Weekly Programme Generator</h1>
-            
-            <div class="input-section">
-                <label for="programmeInput">Programme Details:</label>
-                <textarea 
-                    id="programmeInput" 
-                    rows="20" 
-                    placeholder="Paste your programme text here...
+<div class="container">
+  <h1>📅 KSIJ Poster Generator</h1>
+  <p class="subtitle">AI-Powered • 30 Seconds Total</p>
+  
+  <label for="programmeInput">Paste Your Programme Text:</label>
+  <textarea id="programmeInput" rows="16" placeholder="Monday 22nd Dec 2025 - 1st Rajab 1447
 
-Example format:
-Ksij – Weekly Programme
-23rd March. 2026 – 29th March. 2026 – 3rd Shawwal 1447 -9th Shawwal 1447
+Fajr: 05:39 AM
+Zohrain: 12:49 PM
+Maghrebain: 07:06 PM
 
-Monday 23rd March. 2026 / 3rd Shawwal 1447
-Fajr Adhan – 5:53 a.m.
-Zohrain Adhan - 12:57 p.m.
-Maghrebain Prayers   7:13 p.m.
+IMAM MUSA AL KAZIM DAY
+8:15 PM Hadise Kissa
+8:30 PM Maulana's Lecture
+9:05 PM Qasidas/Munajat
+Followed by Ziyarat
+
+Niyaz served. Ladies & Gents attend.
+
 ..."></textarea>
-                <a href="#" class="example-link" onclick="loadExample(); return false;">Load example text</a>
-            </div>
+  
+  <label for="hadithInput">Hadith (Optional):</label>
+  <textarea id="hadithInput" rows="3" placeholder="Leave empty for default hadith..."></textarea>
+  
+  <button onclick="generatePoster()" id="generateBtn">
+    🚀 Generate Poster
+  </button>
+  
+  <div id="status" class="status"></div>
+  
+  <div class="instructions">
+    <h3>📝 How It Works:</h3>
+    <ol>
+      <li>Paste your programme text above</li>
+      <li>Click "Generate Poster"</li>
+      <li>New tab opens with your poster</li>
+      <li>Press <strong>Ctrl+P</strong> (Windows) or <strong>Cmd+P</strong> (Mac)</li>
+      <li>Save as PDF or use "Save as PNG" browser extension</li>
+      <li><strong>Done! Total time: 30 seconds</strong></li>
+    </ol>
+  </div>
+</div>
 
-            <div class="input-section">
-                <label for="hadithInput">Hadith (Optional):</label>
-                <textarea 
-                    id="hadithInput" 
-                    rows="4" 
-                    placeholder="Enter hadith text here... (Leave empty to use default)"></textarea>
-            </div>
+<script>
+async function generatePoster() {
+  const programmeText = document.getElementById('programmeInput').value.trim();
+  const hadith = document.getElementById('hadithInput').value.trim();
+  
+  if (!programmeText) {
+    showStatus('Please paste your programme text', 'error');
+    return;
+  }
+  
+  const btn = document.getElementById('generateBtn');
+  const originalHTML = btn.innerHTML;
+  
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span>AI is processing...';
+  hideStatus();
+  
+  try {
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ programmeText, hadith })
+    });
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.error);
+    }
+    
+    // Open poster in new tab
+    window.open(result.url, '_blank');
+    
+    showStatus('✅ Poster opened in new tab! Press Ctrl+P to print/save.', 'success');
+    
+  } catch (error) {
+    console.error(error);
+    showStatus('❌ Error: ' + error.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalHTML;
+  }
+}
 
-            <button onclick="generatePoster()" id="generateBtn">
-                Generate Poster
-            </button>
+function showStatus(message, type) {
+  const status = document.getElementById('status');
+  status.textContent = message;
+  status.className = 'status ' + type;
+}
 
-            <div id="status" class="status"></div>
-        </div>
-
-        <div class="panel preview-container">
-            <h1>🖼️ Preview</h1>
-            <div id="placeholder" class="placeholder">
-                <div class="placeholder-icon">🎨</div>
-                <div>Your poster will appear here</div>
-            </div>
-            <img id="posterPreview" alt="Generated Poster">
-            <button onclick="downloadPoster()" id="downloadBtn" class="download-btn" disabled>
-                Download Poster
-            </button>
-        </div>
-    </div>
-
-    <script>
-        let currentImageUrl = null;
-
-        function loadExample() {
-            const example = `Ksij – Weekly Programme
-23rd March. 2026 – 29th March. 2026 – 3rd Shawwal 1447 -9th Shawwal 1447
-
-Monday 23rd March. 2026 / 3rd Shawwal 1447
-Fajr Adhan – 5:53 a.m.
-Zohrain Adhan - 12:57 p.m.
-Maghrebain Prayers   7:13 p.m.
-Fateha khanni programme Shaheed Ayatollah Syed Ali Khamenei
-Programme
-08:15 pm Sure Yaseen
-08:25 pm Sure Rehman
-08:40 pm Marsiya
-08:50 pm Irani Ambassador speech
-09:00 pm Majlis followed by Ziarat
-Niaz will be served
-Both Ladies & Gents are requested to attend
-
-Tuesday 24th March. 2026 / 4th Shawwal 1447
-Fajr Adhan – 5:53 a.m.
-Zohrain Adhan - 12:57 p.m.
-Maghrebain Prayers   7:13 p.m
-Followed by Dua e Tawassul
-
-Friday 27th March. 2026 / 7th Shawwal 1447
-Fajr Adhan – 5:52 a.m.
-Juma-Adhan – 12:56 p.m.
-Maghrebain Prayers 7:12 p.m.
-Youm e Gham
-Programme
-Marsiya, Majlis, Matam followed by Ziarat`;
-
-            document.getElementById('programmeInput').value = example;
-        }
-
-        async function generatePoster() {
-            const programmeText = document.getElementById('programmeInput').value.trim();
-            const hadith = document.getElementById('hadithInput').value.trim();
-
-            if (!programmeText) {
-                showStatus('Please enter programme details', 'error');
-                return;
-            }
-
-            const btn = document.getElementById('generateBtn');
-            const downloadBtn = document.getElementById('downloadBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loader"></span>Generating...';
-            downloadBtn.disabled = true;
-            showStatus('AI is processing your programme...', 'loading');
-
-            try {
-                // Step 1: Parse the programme
-                const parseResponse = await fetch('/api/parse', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ programmeText, hadith })
-                });
-
-                const parseResult = await parseResponse.json();
-                
-                if (!parseResult.success) {
-                    throw new Error(parseResult.error);
-                }
-
-                showStatus('Generating poster image...', 'loading');
-
-                // Step 2: Generate the image
-                const imageResponse = await fetch('/api/generate-image', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        data: parseResult.data, 
-                        hadith,
-                        logoUrl: '/ksij-logo.png'
-                    })
-                });
-
-                if (!imageResponse.ok) {
-                    throw new Error('Failed to generate image');
-                }
-
-                // Display the image
-                const blob = await imageResponse.blob();
-                if (currentImageUrl) {
-                    URL.revokeObjectURL(currentImageUrl);
-                }
-                currentImageUrl = URL.createObjectURL(blob);
-                
-                const preview = document.getElementById('posterPreview');
-                const placeholder = document.getElementById('placeholder');
-                preview.src = currentImageUrl;
-                preview.classList.add('visible');
-                placeholder.style.display = 'none';
-
-                showStatus('Poster generated successfully!', 'success');
-                downloadBtn.disabled = false;
-
-            } catch (err) {
-                console.error("Generation error:", err);
-                showStatus(`Error: ${err.message}`, 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = 'Generate Poster';
-            }
-        }
-
-        function showStatus(message, type) {
-            const status = document.getElementById('status');
-            status.textContent = message;
-            status.className = 'status ' + type;
-        }
-
-        function downloadPoster() {
-            if (!currentImageUrl) return;
-            
-            const link = document.createElement('a');
-            link.download = 'KSIJ_Weekly_Programme.png';
-            link.href = currentImageUrl;
-            link.click();
-        }
-    </script>
+function hideStatus() {
+  document.getElementById('status').style.display = 'none';
+}
+</script>
 </body>
 </html>

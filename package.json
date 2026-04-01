@@ -1,7 +1,7 @@
 {
-  "name": "ksij-poster-generator-v2",
-  "version": "2.0.0",
-  "description": "KSIJ Weekly Programme Poster Generator",
+  "name": "ksij-poster-generator",
+  "version": "3.0.0",
+  "description": "KSIJ Weekly Programme Poster - 30 Second Solution",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -10,7 +10,6 @@
   "dependencies": {
     "express": "^4.18.2",
     "@anthropic-ai/sdk": "^0.20.0",
-    "canvas": "^2.11.2",
     "dotenv": "^16.0.3"
   },
   "engines": {

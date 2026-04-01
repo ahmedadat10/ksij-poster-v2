@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KSIJ Poster Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+body{font-family:system-ui;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:20px;margin:0}.container{max-width:1600px;margin:0 auto;display:grid;grid-template-columns:400px 1fr;gap:20px}.panel{background:white;border-radius:12px;padding:30px;box-shadow:0 10px 40px rgba(0,0,0,0.2)}h1{margin:0 0 20px;font-size:24px;color:#2d3748}label{display:block;margin-bottom:8px;color:#4a5568;font-weight:600;font-size:14px}textarea{width:100%;padding:12px;border:2px solid #e2e8f0;border-radius:8px;font-family:monospace;font-size:13px;resize:vertical;margin-bottom:15px}button{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;padding:14px 28px;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;width:100%;margin-bottom:10px}button:hover{transform:translateY(-2px)}button:disabled{background:#cbd5e0;cursor:not-allowed}button.download{background:linear-gradient(135deg,#48bb78 0%,#38a169 100%)}.status{margin-top:15px;padding:12px;border-radius:8px;font-size:14px;display:none}.status.loading{background:#ebf8ff;color:#2c5282;display:block}.status.success{background:#f0fff4;color:#22543d;display:block}.status.error{background:#fff5f5;color:#742a2a;display:block}#posterContainer{transform:scale(0.7);transform-origin:top left;display:none}#posterContainer.visible{display:block}.loader{display:inline-block;width:14px;height:14px;border:2px solid #fff;border-radius:50%;border-top-color:transparent;animation:spin .8s linear infinite;margin-right:8px}@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="panel">
+<h1>📅 KSIJ Poster Generator</h1>
+<label for="programmeInput">Programme Details:</label>
+<textarea id="programmeInput" rows="20" placeholder="Paste programme text..."></textarea>
+<label for="hadithInput">Hadith (Optional):</label>
+<textarea id="hadithInput" rows="4" placeholder="Leave empty for default..."></textarea>
+<button onclick="generatePoster()" id="generateBtn">Generate Poster</button>
+<button class="download" onclick="downloadPoster()" id="downloadBtn" disabled>Download PNG</button>
+<div id="status" class="status"></div>
+</div>
+<div class="panel" style="overflow:auto">
+<h1>🖼️ Preview</h1>
+<div id="posterContainer"></div>
+</div>
+</div>
+
+<script>
+async function generatePoster(){
+const programmeText=document.getElementById('programmeInput').value.trim();
+const hadith=document.getElementById('hadithInput').value.trim();
+if(!programmeText){showStatus('Please enter programme details','error');return}
+const btn=document.getElementById('generateBtn');
+const downloadBtn=document.getElementById('downloadBtn');
+btn.disabled=true;
+btn.innerHTML='<span class="loader"></span>Generating...';
+downloadBtn.disabled=true;
+showStatus('AI is processing...','loading');
+try{
+const parseRes=await fetch('/api/parse',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({programmeText})});
+const parseResult=await parseRes.json();
+if(!parseResult.success)throw new Error(parseResult.error);
+showStatus('Building poster...','loading');
+const html=buildPosterHTML(parseResult.data,hadith);
+document.getElementById('posterContainer').innerHTML=html;
+document.getElementById('posterContainer').classList.add('visible');
+showStatus('Poster ready! Click Download to save.','success');
+downloadBtn.disabled=false;
+}catch(err){
+console.error(err);
+showStatus(`Error: ${err.message}`,'error');
+}finally{
+btn.disabled=false;
+btn.innerHTML='Generate Poster';
+}
+}
+
+function buildPosterHTML(data,customHadith){
+const hadith=customHadith||`IMAM JA'FAR SADIQ (A.S.) NARRATES THAT THE HOLY PROPHET (S.A.W.S.) SAID, "ONE WHO WALKS ON EARTH PROUDLY, THE EARTH AND ALL THE CREATURES ABOVE AND BELOW IT CURSE HIM."`;
+const leftDays=data.days.filter((_,i)=>i%2===0);
+const rightDays=data.days.filter((_,i)=>i%2===1);
+return `<iframe srcdoc='${buildFullHTML(data,hadith,leftDays,rightDays).replace(/'/g,"&apos;")}' style="width:1080px;height:2000px;border:none;background:white;border-radius:8px"></iframe>`;
+}
+
+function buildFullHTML(data,hadith,leftDays,rightDays){
+return `<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"><style>
+/* Copy all styles from template.html */
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Montserrat',sans-serif;background:#111;display:flex;justify-content:center;padding:0}.poster{width:1080px;background:#f7f4ee;position:relative;overflow:hidden}
+/* Add remaining styles here - this is a simplified version */
+</style></head><body><div class="poster">
+<div style="height:10px;background:linear-gradient(90deg,#7a4e00,#d4a017,#f5d155,#ffffff,#f5d155,#d4a017,#7a4e00)"></div>
+<h1 style="text-align:center;padding:40px;background:#2a9d4e;color:white">${data.dateRange}<br>${data.islamicDateRange}</h1>
+<p style="padding:20px">Poster content will be rendered here...</p>
+<p style="padding:20px;background:#2a9d4e;color:white">${hadith}</p>
+</div></body></html>`;
+}
+
+async function downloadPoster(){
+try{
+const iframe=document.querySelector('#posterContainer iframe');
+const iframeDoc=iframe.contentDocument||iframe.contentWindow.document;
+const canvas=await html2canvas(iframeDoc.body,{scale:2,backgroundColor:'#f7f4ee',width:1080});
+const link=document.createElement('a');
+link.download='KSIJ_Weekly_Programme.png';
+link.href=canvas.toDataURL('image/png');
+link.click();
+showStatus('Downloaded!','success');
+}catch(err){
+showStatus('Error: '+err.message,'error');
+}
+}
+
+function showStatus(msg,type){
+const status=document.getElementById('status');
+status.textContent=msg;
+status.className='status '+type;
+}
+</script>
+</body>
+</html>
