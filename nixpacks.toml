@@ -1,0 +1,5 @@
+[phases.setup]
+aptPkgs = ["fonts-liberation", "fonts-dejavu-core", "fontconfig"]
+
+[start]
+cmd = "npm start"

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KSIJ Poster Generator V2</title>
+<style>
+body{font-family:system-ui,-apple-system,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:20px;margin:0}.container{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:450px 1fr;gap:20px}.panel{background:white;border-radius:12px;padding:30px;box-shadow:0 10px 40px rgba(0,0,0,0.2)}h1{margin:0 0 20px;font-size:24px;color:#2d3748}label{display:block;margin-bottom:8px;color:#4a5568;font-weight:600;font-size:14px}textarea{width:100%;padding:12px;border:2px solid #e2e8f0;border-radius:8px;font-family:'Courier New',monospace;font-size:13px;resize:vertical;margin-bottom:15px}textarea:focus{outline:none;border-color:#667eea}button{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;padding:14px 28px;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;width:100%;margin-bottom:10px}button:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(102,126,234,0.4)}button:disabled{background:#cbd5e0;cursor:not-allowed;transform:none}button.download{background:linear-gradient(135deg,#48bb78 0%,#38a169 100%)}.status{margin-top:15px;padding:12px;border-radius:8px;font-size:14px;display:none}.status.loading{background:#ebf8ff;color:#2c5282;display:block}.status.success{background:#f0fff4;color:#22543d;display:block}.status.error{background:#fff5f5;color:#742a2a;display:block}#posterPreview{width:100%;max-width:100%;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);display:none}#posterPreview.visible{display:block}.placeholder{text-align:center;padding:100px 20px;color:#a0aec0}.loader{display:inline-block;width:14px;height:14px;border:2px solid #ffffff;border-radius:50%;border-top-color:transparent;animation:spin 0.8s linear infinite;margin-right:8px}@keyframes spin{to{transform:rotate(360deg)}}@media (max-width:1200px){.container{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="panel">
+<h1>📅 KSIJ Poster Generator</h1>
+<label for="programmeInput">Programme Details:</label>
+<textarea id="programmeInput" rows="20" placeholder="Paste your programme text here..."></textarea>
+<label for="hadithInput">Hadith (Optional):</label>
+<textarea id="hadithInput" rows="4" placeholder="Leave empty for default hadith..."></textarea>
+<button onclick="generatePoster()" id="generateBtn">Generate Poster</button>
+<button class="download" onclick="downloadPoster()" id="downloadBtn" disabled>Download PNG</button>
+<div id="status" class="status"></div>
+</div>
+<div class="panel">
+<h1>🖼️ Preview</h1>
+<div id="placeholder" class="placeholder"><div style="font-size:48px;margin-bottom:15px;">🎨</div><div>Your poster will appear here</div></div>
+<img id="posterPreview" alt="Generated Poster">
+</div>
+</div>
+<script>
+let currentImageUrl=null;async function generatePoster(){const t=document.getElementById("programmeInput").value.trim(),e=document.getElementById("hadithInput").value.trim();if(!t)return void showStatus("Please enter programme details","error");const n=document.getElementById("generateBtn"),o=document.getElementById("downloadBtn");n.disabled=!0,n.innerHTML='<span class="loader"></span>Generating...',o.disabled=!0,showStatus("AI is processing your programme...","loading");try{const s=await fetch("/api/parse",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({programmeText:t})}),a=await s.json();if(!a.success)throw new Error(a.error);showStatus("Generating poster image...","loading");const d=await fetch("/api/generate-poster",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:a.data,hadith:e})});if(!d.ok)throw new Error("Failed to generate poster");const r=await d.blob();currentImageUrl&&URL.revokeObjectURL(currentImageUrl),currentImageUrl=URL.createObjectURL(r);const i=document.getElementById("posterPreview"),l=document.getElementById("placeholder");i.src=currentImageUrl,i.classList.add("visible"),l.style.display="none",showStatus("Poster generated successfully!","success"),o.disabled=!1}catch(t){console.error(t),showStatus(`Error: ${t.message}`,"error")}finally{n.disabled=!1,n.innerHTML="Generate Poster"}}function downloadPoster(){if(!currentImageUrl)return;const t=document.createElement("a");t.download="KSIJ_Weekly_Programme.png",t.href=currentImageUrl,t.click()}function showStatus(t,e){const n=document.getElementById("status");n.textContent=t,n.className="status "+e}
+</script>
+</body>
+</html>

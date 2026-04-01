@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>KSIJ Poster Generator - Standalone Tool</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+body {
+  font-family: system-ui;
+  margin: 0;
+  background: #f0f0f0;
+}
+.controls {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 400px;
+  height: 100vh;
+  background: white;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+.preview {
+  margin-left: 400px;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+h2 {
+  margin: 0 0 15px;
+  color: #333;
+}
+textarea, input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+}
+textarea {
+  min-height: 200px;
+  resize: vertical;
+}
+button {
+  width: 100%;
+  padding: 12px;
+  background: #2a9d4e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+button:hover {
+  background: #238a42;
+}
+button.secondary {
+  background: #667eea;
+}
+button.secondary:hover {
+  background: #5568d3;
+}
+#poster {
+  background: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <h2>📅 KSIJ Poster Generator</h2>
+  
+  <label><strong>Date Range:</strong></label>
+  <input type="text" id="dateRange" value="22ND DEC - 28TH DEC 2025" placeholder="e.g., 22ND DEC - 28TH DEC 2025">
+  
+  <label><strong>Islamic Date Range:</strong></label>
+  <input type="text" id="islamicRange" value="1ST - 7TH RAJAB 1447" placeholder="e.g., 1ST - 7TH RAJAB 1447">
+  
+  <label><strong>Programme Text:</strong></label>
+  <textarea id="programmeText" placeholder="Paste programme details here..."></textarea>
+  
+  <label><strong>Hadith (optional):</strong></label>
+  <textarea id="hadith" placeholder="Leave empty for default hadith..."></textarea>
+  
+  <button onclick="updatePoster()">🔄 Update Poster</button>
+  <button class="secondary" onclick="downloadPoster()">📥 Download PNG</button>
+  
+  <div style="margin-top: 20px; padding: 12px; background: #f0f9ff; border-radius: 4px; font-size: 13px;">
+    <strong>📝 Instructions:</strong><br>
+    1. Fill in the date ranges<br>
+    2. Paste programme text<br>
+    3. Click Update Poster<br>
+    4. Download as PNG!
+  </div>
+</div>
+
+<div class="preview">
+  <div id="poster">
+    <!-- The HTML template will be loaded here -->
+    <p style="padding: 40px; text-align: center; color: #666;">
+      Click "Update Poster" to generate...
+    </p>
+  </div>
+</div>
+
+<script>
+const templateHTML = `<?php echo file_get_contents('template.html'); ?>`;
+
+function updatePoster() {
+  const dateRange = document.getElementById('dateRange').value;
+  const islamicRange = document.getElementById('islamicRange').value;
+  const programmeText = document.getElementById('programmeText').value;
+  const hadith = document.getElementById('hadith').value;
+  
+  // For now, just load the template as-is
+  // You'll manually edit the template HTML with your programme details
+  fetch('template.html')
+    .then(r => r.text())
+    .then(html => {
+      // Replace date ranges in template
+      html = html.replace(/22ND DEC - 28TH DEC 2025/g, dateRange);
+      html = html.replace(/1ST - 7TH RAJAB 1447/g, islamicRange);
+      
+      document.getElementById('poster').innerHTML = html;
+    });
+}
+
+async function downloadPoster() {
+  const poster = document.getElementById('poster');
+  
+  // Use html2canvas to convert to image
+  const canvas = await html2canvas(poster, {
+    scale: 2,
+    backgroundColor: '#f7f4ee',
+    width: 1080,
+    windowWidth: 1080
+  });
+  
+  // Download
+  const link = document.createElement('a');
+  link.download = 'KSIJ_Weekly_Programme.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+// Load template on start
+window.onload = () => {
+  fetch('template.html')
+    .then(r => r.text())
+    .then(html => {
+      document.getElementById('poster').innerHTML = html;
+    });
+};
+</script>
+
+</body>
+</html>
